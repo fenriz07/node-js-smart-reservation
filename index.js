@@ -1,19 +1,34 @@
 const puppeteer = require('puppeteer');
 const config = require('dotenv').config();
 
-exports.Main = (req, res) => {
-  
+exports.Main = async (req, res) => {
 
-  (async () => {
+  await (async () => {
+
+    console.log("init...")
 
     headless = ( config.parsed.BROWSER_HEADLESS === 'true')
   
     const browser = await puppeteer.launch({
       headless: headless,
+      args: [
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-setuid-sandbox',
+        '--no-first-run',
+        '--no-sandbox',
+        '--no-zygote',
+        '--single-process',
+        "--proxy-server='direct://'",
+        '--proxy-bypass-list=*',
+        '--deterministic-fetch',
+      ],
     });
+
   
     const page = await browser.newPage();
-  
+
+    
     await page.goto(config.parsed.URL_LOGIN);
     await page.type('#login',config.parsed.ACCOUNT_LOGIN);
     await page.type('#person_session_password',config.parsed.ACCOUNT_PASSWORD);
@@ -44,11 +59,15 @@ exports.Main = (req, res) => {
   
     await lastHour.click()
 
-    await browser.close();
+    await browser.close(); 
 
-    res.status(200)
+    console.log("browser close")
+
   
   })();
 
-
+  console.log("final")
+  res.status(200).send("finish")
+  res.end()
+    
 };
